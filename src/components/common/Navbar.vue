@@ -1,4 +1,4 @@
- <template>
+<template>
   <div class="mainNav" id="mainNav">
     <div class="box_center cf">
       <ul class="nav" id="navModule">
@@ -7,7 +7,7 @@
           <router-link :to="{ name: 'bookclass' }"> 全部作品 </router-link>
         </li>
         <li><router-link :to="{ name: 'bookRank' }">排行榜</router-link></li>
-        <!--<li class=""><a href="/pay/index.html">充值</a></li>-->
+        <li class=""><router-link :to="{ name: 'pay' }">充值</router-link></li>
         <li><a @click="goAuthor" href="javascript:void(0)">作家专区</a></li>
       </ul>
     </div>
@@ -17,11 +17,11 @@
 <script>
 import { reactive, toRefs, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { getToken} from "@/utils/auth";
-import {getAuthorStatus} from "@/api/author"
+import { getToken } from "@/utils/auth";
+import { getAuthorStatus } from "@/api/author"
 export default {
   name: "Navbar",
-  setup() {
+  setup () {
     const route = useRoute();
     const router = useRouter();
     const goAuthor = async () => {
@@ -32,9 +32,9 @@ export default {
         return;
       }
 
-      const {data} = await getAuthorStatus();
-      if(data === null){
-          router.push({
+      const { data } = await getAuthorStatus();
+      if (data === null) {
+        router.push({
           name: "authorRegister",
         });
         return;
