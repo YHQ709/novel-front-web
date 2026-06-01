@@ -5,32 +5,18 @@
       <div class="leftBox">
         <div class="sliderContent">
           <dl class="scBigImg" id="carouseBig">
-            <dd
-              v-for="(item, index) in sliderContent"
-              :key="index"
-              :class="{ on: index == 0 }"
-            >
+            <dd v-for="(item, index) in sliderContent" :key="index" :class="{ on: index == 0 }">
               <a href="javascript:void(0)" @click="bookDetail(item.bookId)">
-                <img
-                  :src="`${imgBaseUrl}` + `${item.picUrl}`"
-                  :alt="item.bookName"
-                  onerror="this.src='default.gif';this.onerror=null"
-                />
+                <img :src="`${imgBaseUrl}` + `${item.picUrl}`" :alt="item.bookName"
+                  onerror="this.src='default.gif';this.onerror=null" />
               </a>
             </dd>
           </dl>
           <div class="scSmallImg" id="carouseSmall">
             <ul>
-              <li
-                v-for="(item, index) in sliderContent"
-                :key="index"
-                :class="{ on: index == 0 }"
-              >
-                <img
-                  :src="`${imgBaseUrl}` + `${item.picUrl}`"
-                  :alt="item.bookName"
-                  onerror="this.src='default.gif';this.onerror=null"
-                />
+              <li v-for="(item, index) in sliderContent" :key="index" :class="{ on: index == 0 }">
+                <img :src="`${imgBaseUrl}` + `${item.picUrl}`" :alt="item.bookName"
+                  onerror="this.src='default.gif';this.onerror=null" />
               </li>
             </ul>
           </div>
@@ -45,18 +31,16 @@
             <dd>
               <a href="javascript:void(0)" @click="bookDetail(topBooks1[1].bookId)" v-if="topBooks1[1]">{{
                 topBooks1[1].bookName
-              }}</a
-              ><a href="javascript:void(0)" @click="bookDetail(topBooks1[2].bookId)" v-if="topBooks1[2]">{{
-                topBooks1[2].bookName
-              }}</a>
+              }}</a><a href="javascript:void(0)" @click="bookDetail(topBooks1[2].bookId)" v-if="topBooks1[2]">{{
+                  topBooks1[2].bookName
+                }}</a>
             </dd>
             <dd>
               <a href="javascript:void(0)" @click="bookDetail(topBooks1[3].bookId)" v-if="topBooks1[3]">{{
                 topBooks1[3].bookName
-              }}</a
-              ><a href="javascript:void(0)" @click="bookDetail(topBooks1[4].bookId)" v-if="topBooks1[4]">{{
-                topBooks1[4].bookName
-              }}</a>
+              }}</a><a href="javascript:void(0)" @click="bookDetail(topBooks1[4].bookId)" v-if="topBooks1[4]">{{
+                  topBooks1[4].bookName
+                }}</a>
             </dd>
           </dl>
           <dl class="hot_recommend" id="topBooks2">
@@ -68,18 +52,16 @@
             <dd>
               <a href="javascript:void(0)" @click="bookDetail(topBooks1[6].bookId)" v-if="topBooks1[6]">{{
                 topBooks1[6].bookName
-              }}</a
-              ><a href="javascript:void(0)" @click="bookDetail(topBooks1[7].bookId)" v-if="topBooks1[7]">{{
-                topBooks1[7].bookName
-              }}</a>
+              }}</a><a href="javascript:void(0)" @click="bookDetail(topBooks1[7].bookId)" v-if="topBooks1[7]">{{
+                  topBooks1[7].bookName
+                }}</a>
             </dd>
             <dd>
               <a href="javascript:void(0)" @click="bookDetail(topBooks1[8].bookId)" v-if="topBooks1[8]">{{
                 topBooks1[8].bookName
-              }}</a
-              ><a href="javascript:void(0)" @click="bookDetail(topBooks1[9].bookId)" v-if="topBooks1[9]">{{
-                topBooks1[9].bookName
-              }}</a>
+              }}</a><a href="javascript:void(0)" @click="bookDetail(topBooks1[9].bookId)" v-if="topBooks1[9]">{{
+                  topBooks1[9].bookName
+                }}</a>
             </dd>
           </dl>
 
@@ -92,31 +74,20 @@
         </div>
         <div class="rightList">
           <ul id="currentWeek">
-            <li
-              v-for="(item, index) in weekcommend"
-              :key="index"
-              :class="['num' + (Number(`${index}`) + 1), { on: index == 0 }]"
-            >
+            <li v-for="(item, index) in weekcommend" :key="index"
+              :class="['num' + (Number(`${index}`) + 1), { on: index == 0 }]">
               <div class="book_name">
-                <i>{{ index + 1 }}</i
-                ><a class="name" href="javascript:void(0)" @click="bookDetail(item.bookId)">{{
+                <i>{{ index + 1 }}</i><a class="name" href="javascript:void(0)" @click="bookDetail(item.bookId)">{{
                   item.bookName
                 }}</a>
               </div>
               <div class="book_intro">
                 <div class="cover">
-                  <a href="javascript:void(0)" @click="bookDetail(item.bookId)"
-                    ><img
-                      :src="`${imgBaseUrl}` + `${item.picUrl}`"
-                      :alt="item.bookName"
-                      onerror="this.src='default.gif';this.onerror=null"
-                  /></a>
+                  <a href="javascript:void(0)" @click="bookDetail(item.bookId)"><img
+                      :src="`${imgBaseUrl}` + `${item.picUrl}`" :alt="item.bookName"
+                      onerror="this.src='default.gif';this.onerror=null" /></a>
                 </div>
-                <a
-                  class="txt"
-                  href="javascript:void(0)" @click="bookDetail(item.bookId)"
-                  v-html="item.bookDesc"
-                ></a>
+                <a class="txt" href="javascript:void(0)" @click="bookDetail(item.bookId)" v-html="item.bookDesc"></a>
               </div>
             </li>
           </ul>
@@ -130,17 +101,10 @@
           <h2 class="on">热门推荐</h2>
         </div>
         <div class="picRecommend cf" id="hotRecBooks">
-          <div
-            class="itemsList"
-            v-for="(item, index) in hotRecommend"
-            :key="index"
-          >
+          <div class="itemsList" v-for="(item, index) in hotRecommend" :key="index">
             <a class="items_img" href="javascript:void(0)" @click="bookDetail(item.bookId)">
-              <img
-                :src="`${imgBaseUrl}` + `${item.picUrl}`"
-                onerror="this.src='default.gif';this.onerror=null"
-                :alt="item.bookName"
-              />
+              <img :src="`${imgBaseUrl}` + `${item.picUrl}`" onerror="this.src='default.gif';this.onerror=null"
+                :alt="item.bookName" />
             </a>
             <div class="items_txt">
               <h4>
@@ -150,10 +114,7 @@
                 <a href="javascript:void(0)">作者：{{ item.authorName }}</a>
               </p>
               <p class="intro">
-                <a
-                  href="javascript:void(0)" @click="bookDetail(item.bookId)"
-                  v-html="item.bookDesc"
-                ></a>
+                <a href="javascript:void(0)" @click="bookDetail(item.bookId)" v-html="item.bookDesc"></a>
               </p>
             </div>
           </div>
@@ -168,16 +129,9 @@
         </div>
 
         <div class="picRecommend cf" id="classicBooks">
-          <div
-            class="itemsList"
-            v-for="(item, index) in goodRecommend"
-            :key="index"
-          >
+          <div class="itemsList" v-for="(item, index) in goodRecommend" :key="index">
             <a class="items_img" href="javascript:void(0)" @click="bookDetail(item.bookId)">
-              <img
-                :src="`${imgBaseUrl}` + `${item.picUrl}`"
-                onerror="this.src='default.gif';this.onerror=null"
-              />
+              <img :src="`${imgBaseUrl}` + `${item.picUrl}`" onerror="this.src='default.gif';this.onerror=null" />
             </a>
             <div class="items_txt">
               <h4>
@@ -187,10 +141,7 @@
                 <a href="javascript:void(0)">作者：{{ item.authorName }}</a>
               </p>
               <p class="intro">
-                <a
-                  href="javascript:void(0)" @click="bookDetail(item.bookId)"
-                  v-html="item.bookDesc"
-                ></a>
+                <a href="javascript:void(0)" @click="bookDetail(item.bookId)" v-html="item.bookDesc"></a>
               </p>
             </div>
           </div>
@@ -201,7 +152,7 @@
 
     <BookUpdateRank />
   </div>
-  <FriendLink />
+  <!-- <FriendLink /> -->
 
   <Footer />
 </template>
@@ -214,7 +165,7 @@ import { ElMessage, ElLoading } from "element-plus";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
 import LatestNews from "@/components/home/LatestNews";
-import FriendLink from "@/components/home/FriendLink";
+// import FriendLink from "@/components/home/FriendLink";
 import BookVisitRank from "@/components/home/BookVisitRank";
 import BookNewestRank from "@/components/home/BookNewestRank";
 import BookUpdateRank from "@/components/home/BookUpdateRank";
@@ -223,13 +174,13 @@ export default {
   components: {
     Header,
     LatestNews,
-    FriendLink,
+    // FriendLink,
     BookVisitRank,
     BookNewestRank,
     BookUpdateRank,
     Footer,
   },
-  setup() {
+  setup () {
     const route = useRoute();
     const router = useRouter();
     const state = reactive({
@@ -282,7 +233,7 @@ export default {
       var num = -1;
       var open;
 
-      function changeKv() {
+      function changeKv () {
         if (num >= $nav.length - 1) {
           num = 0;
         } else {

@@ -1,65 +1,49 @@
 <template>
   <Header />
   <div class="main box_center cf mb50">
+    <div class="nav_sub">
+      <a href="/">首页</a>&gt;
+      <router-link :to="{
+        path: '/bookclass',
+        query: {
+          categoryId: book.categoryId,
+          workDirection: book.workDirection
+        }
+      }">{{ book.categoryName }}</router-link>&gt;
+      <router-link :to="`/book/${book.id}`">{{ book.bookName }}</router-link>
+    </div>
     <div class="channelWrap channelBookInfo cf">
       <div class="bookCover cf">
         <a class="book_cover">
-          <img
-            id="bookCover"
-            class="cover"
-            :src="`${imgBaseUrl}` + `${book.picUrl}`"
-            :alt="book.bookName"
-        /></a>
+          <img id="bookCover" class="cover" :src="`${imgBaseUrl}` + `${book.picUrl}`" :alt="book.bookName" /></a>
         <div class="book_info">
           <div class="tit">
             <h1>{{ book.bookName }}</h1>
             <!--<i class="vip_b">VIP</i>--><a class="author">{{
               book.authorName
-            }}</a>
+            }} 著</a>
           </div>
           <ul class="list">
             <li>
-              <span class="item"
-                >类别：<em>{{ book.categoryName }}</em></span
-              >
-              <span class="item"
-                >状态：<em>{{
-                  book.bookStatus == 0 ? "连载中" : "已完结"
-                }}</em></span
-              >
-              <span class="item"
-                >总点击：<em id="cTotal">{{ book.visitCount }}</em></span
-              >
-              <span class="item"
-                >总字数：<em>{{ book.wordCount }}</em></span
-              >
+              <span class="item">类别：<em>{{ book.categoryName }}</em></span>
+              <span class="item">状态：<em>{{
+                book.bookStatus == 0 ? "连载中" : "已完结"
+              }}</em></span>
+              <span class="item">总点击：<em id="cTotal">{{ book.visitCount }}</em></span>
+              <span class="item">总字数：<em>{{ book.wordCount }}</em></span>
             </li>
           </ul>
           <div class="intro_txt">
             <p style="white-space:break-spaces" v-html="book.bookDesc"></p>
-            <a class="icon_hide" href="javascript:void(0)" onclick=""
-              ><i></i>收起</a
-            >
-            <a class="icon_show" href="javascript:void(0)" onclick=""
-              ><i></i>展开</a
-            >
+            <a class="icon_hide" href="javascript:void(0)" onclick=""><i></i>收起</a>
+            <a class="icon_show" href="javascript:void(0)" onclick=""><i></i>展开</a>
           </div>
           <div class="btns" id="optBtn">
-            <a
-              href="javascript:void(0)"
-              @click="bookContent(book.id, book.firstChapterId)"
-              class="btn_ora"
-              >点击阅读</a
-            >
-            <!--
-            <span id="cFavs"
-              ><a
-                href="javascript:void(0);"
-                class="btn_ora_white btn_addsj"
-                onclick="javascript:BookDetail.AddFavorites(37,0,0);"
-                >加入书架</a
-              >
-            </span>-->
+            <a href="javascript:void(0)" @click="bookContent(book.id, book.firstChapterId)" class="btn_ora">点击阅读</a>
+
+            <span id="cFavs"><a href="javascript:void(0);" class="btn_ora_white btn_addsj" @click="addToBookshelf">{{
+              isInBookshelf ? '已在书架' : '加入书架' }}</a>
+            </span>
           </div>
         </div>
       </div>
@@ -75,43 +59,27 @@
               <div class="book_tit">
                 <div class="fl">
                   <h3>最新章节</h3>
-                  <span id="bookIndexCount"
-                    >({{ chapterAbout.chapterTotal }}章)</span
-                  >
+                  <span id="bookIndexCount">({{ chapterAbout.chapterTotal }}章)</span>
                 </div>
-                <a
-                  class="fr"
-                  @click="chapterList(book.id)"
-                  href="javascript:void(0)"
-                  >全部目录</a
-                >
+                <a class="fr" @click="chapterList(book.id)" href="javascript:void(0)">全部目录</a>
               </div>
               <ul class="list cf">
                 <li>
                   <span class="fl font16">
-                    <a
-                      @click="
-                        bookContent(
-                          chapterAbout.chapterInfo.bookId,
-                          chapterAbout.chapterInfo.id
-                        )
-                      "
-                      href="javascript:void(0)"
-                      v-if="chapterAbout.chapterInfo"
-                      >{{ chapterAbout.chapterInfo.chapterName }}】</a
-                    ></span
-                  >
-                  <span class="black9 fr" v-if="chapterAbout.chapterInfo"
-                    >更新时间：{{
-                      chapterAbout.chapterInfo.chapterUpdateTime
-                    }}</span
-                  >
+                    <a @click="
+                      bookContent(
+                        chapterAbout.chapterInfo.bookId,
+                        chapterAbout.chapterInfo.id
+                      )
+                      " href="javascript:void(0)" v-if="chapterAbout.chapterInfo">{{
+                        chapterAbout.chapterInfo.chapterName }}】</a></span>
+                  <span class="black9 fr" v-if="chapterAbout.chapterInfo">更新时间：{{
+                    chapterAbout.chapterInfo.chapterUpdateTime
+                  }}</span>
                 </li>
                 <li class="zj_yl" id="lastBookContent">
                   <!--go-->
-                  　　<span
-                    v-html="`${chapterAbout.contentSummary}` + '...'"
-                  ></span>
+                  　　<span v-html="`${chapterAbout.contentSummary}` + '...'"></span>
                 </li>
                 <!--此处是该章节预览，截取最前面的42个字-->
               </ul>
@@ -125,134 +93,52 @@
               <div class="book_tit">
                 <div class="fl">
                   <h3>作品评论区</h3>
-                  <span id="bookCommentTotal"
-                    >({{ newestComments.commentTotal }}条)</span
-                  >
+                  <span id="bookCommentTotal">({{ newestComments.total }}条)</span>
                 </div>
-                <a
-                  class="fr"
-                  @click="goToAnchor('txtComment')"
-                  href="javascript:void(0)"
-                  >发表评论</a
-                >
+                <a class="fr" @click="goToAnchor('txtComment')" href="javascript:void(0)">发表评论</a>
               </div>
-              <div
-                v-if="newestComments.commentTotal == 0"
-                class="no_comment"
-                id="noCommentPanel"
-              >
+              <div v-if="newestComments.total == 0" class="no_comment" id="noCommentPanel">
                 <img :src="no_comment" alt="" />
                 <span class="block">暂无评论</span>
               </div>
-              <div
-                v-if="newestComments.commentTotal > 0"
-                class="commentBar"
-                id="commentPanel"
-              >
-                <div
-                  class="comment_list cf"
-                  v-for="(item, index) in newestComments.comments"
-                  :key="index"
-                >
+              <div v-if="newestComments.total > 0" class="commentBar" id="commentPanel">
+                <div class="comment_list cf" v-for="item in displayComments" :key="item.id">
                   <div class="user_heads fl" vals="389">
-                    <img
-                      :src="
-                        item.commentUserPhoto
-                          ? imgBaseUrl + item.commentUserPhoto
-                          : man
-                      "
-                      class="user_head"
-                      alt=""
-                    /><span class="user_level1" style="display: none"
-                      >见习</span
-                    >
+                    <img :src="item.commentUserPhoto
+                      ? imgBaseUrl + item.commentUserPhoto
+                      : man
+                      " class="user_head" alt="" /><span class="user_level1" style="display: none">见习</span>
                   </div>
                   <ul class="pl_bar fr">
                     <li class="name">{{ item.commentUser }}</li>
                     <li class="dec" v-html="item.commentContent"></li>
                     <li class="other cf">
-                      <span class="time fl">{{ item.commentTime }}</span
-                      ><span class="fr" v-if="item.commentUserId == uid"
-                        ><a
-                          href="javascript:void(0);"
-                          @click="
-                            updateUserComment(item.id, item.commentContent)
-                          "
-                          class="zan"
-                          >修改</a
-                        >
-                        |
-                        <a
-                          href="javascript:void(0);"
-                          @click="deleteUserComment(item.id)"
-                          class="zan"
-                          >删除</a
-                        ></span
-                      >
+                      <span class="time fl">{{ timeAgo(item.commentTime) }}</span><span class="fr">
+                        <router-link :to="`/book/comment/reply/${bookId}/${item.id}`" class="zan">回复<i class="num">({{
+                          item.replyCount || 0 }})</i></router-link>
+                      </span>
                     </li>
                   </ul>
                 </div>
-              </div>
-              <el-dialog
-                v-model="dialogUpdateCommentFormVisible"
-                title="评论修改"
-              >
-                <el-form>
-                  <el-form-item label="评论内容">
-                    <el-input type="textarea" v-model="updateComment" />
-                  </el-form-item>
-                </el-form>
-                <template #footer>
-                  <span class="dialog-footer">
-                    <el-button @click="dialogUpdateCommentFormVisible = false"
-                      >取消</el-button
-                    >
-                    <el-button type="primary" @click="goUpdateComment()"
-                      >确定</el-button
-                    >
-                  </span>
-                </template>
-              </el-dialog>
-
-              <!--无评论时此处隐藏-->
-              <div class="more_bar" id="moreCommentPanel" style="display: none">
-                <a href="/book/comment-1431636283466297344.html"
-                  >查看全部评论&gt;</a
-                >
+                <!--无评论时此处隐藏-->
+                <div class="more_bar" id="moreCommentPanel">
+                  <router-link :to="`/book/comment/${bookId}`">查看全部评论&gt;</router-link>
+                </div>
               </div>
 
               <div class="reply_bar" id="reply_bar">
                 <div class="tit">
                   <span class="fl font16">发表评论</span>
 
-                  <span class="fr black9" style="display: none"
-                    >请先 <a class="orange" href="/user/login.html">登录</a
-                    ><em class="ml10 mr10">|</em
-                    ><a class="orange" href="/user/register.html">注册</a></span
-                  >
+                  <span class="fr black9" style="display: none">请先 <a class="orange" href="/user/login.html">登录</a><em
+                      class="ml10 mr10">|</em><a class="orange" href="/user/register.html">注册</a></span>
                 </div>
 
-                <textarea
-                  v-model="commentContent"
-                  name="txtComment"
-                  rows="2"
-                  cols="20"
-                  id="txtComment"
-                  class="replay_text"
-                  placeholder="我来说两句..."
-                ></textarea>
+                <textarea v-model="commentContent" name="txtComment" rows="2" cols="20" id="txtComment"
+                  class="replay_text" placeholder="我来说两句..."></textarea>
                 <div class="reply_btn">
-                  <span class="fl black9"
-                    ><em class="ml5" id="emCommentNum">0/1000</em> 字</span
-                  >
-                  <span class="fr"
-                    ><a
-                      class="btn_ora"
-                      href="javascript:void(0);"
-                      @click="userComment"
-                      >发表</a
-                    ></span
-                  >
+                  <span class="fl black9"><em class="ml5" id="emCommentNum">0/1000</em> 字</span>
+                  <span class="fr"><a class="btn_ora" href="javascript:void(0);" @click="userComment">发表</a></span>
                 </div>
               </div>
             </div>
@@ -267,9 +153,7 @@
         <!--作者专栏s-->
         <div class="wrap_inner author_info mb20">
           <div class="author_head cf">
-            <a href="javascript:void(0);" class="head"
-              ><img :src="author_head" alt="作者头像" id="authorLogoImg"
-            /></a>
+            <a href="javascript:void(0);" class="head"><img :src="author_head" alt="作者头像" id="authorLogoImg" /></a>
             <div class="msg">
               <span class="icon_qyzz">签约作家</span>
               <h4>
@@ -296,23 +180,14 @@
               <li v-for="(item, index) in books" :key="index">
                 <div class="book_intro">
                   <div class="cover">
-                    <a href="javascript:void(0)" @click="bookDetail(item.id)"
-                      ><img
-                        :id="'bookCover' + `${index}`"
-                        :src="`${imgBaseUrl}` + `${item.picUrl}`"
-                        :alt="item.bookName"
-                    /></a>
+                    <a href="javascript:void(0)" @click="bookDetail(item.id)"><img :id="'bookCover' + `${index}`"
+                        :src="`${imgBaseUrl}` + `${item.picUrl}`" :alt="item.bookName" /></a>
                   </div>
                   <div class="dec">
                     <a href="javascript:void(0)" @click="bookDetail(item.id)">{{
                       item.bookName
                     }}</a>
-                    <a
-                      class="txt"
-                      href="javascript:void(0)"
-                      @click="bookDetail(item.id)"
-                      v-html="item.bookDesc"
-                    ></a>
+                    <a class="txt" href="javascript:void(0)" @click="bookDetail(item.id)" v-html="item.bookDesc"></a>
                   </div>
                 </div>
               </li>
@@ -330,7 +205,7 @@
 <script>
 import "@/assets/styles/book.css";
 import man from "@/assets/images/man.png";
-import { reactive, toRefs, onMounted, onUpdated } from "vue";
+import { reactive, toRefs, onMounted, onUpdated, computed } from "vue";
 import { ElMessage } from "element-plus";
 import { useRouter, useRoute } from "vue-router";
 import {
@@ -340,34 +215,35 @@ import {
   listRecBooks,
   listNewestComments,
 } from "@/api/book";
-import { comment, deleteComment, updateComment } from "@/api/user";
+import { addBookshelf, comment, getBookshelfStatus } from "@/api/user";
 import { getUid } from "@/utils/auth";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
 import author_head from "@/assets/images/author_head.png";
 import no_comment from "@/assets/images/no_comment.png";
-import { goToAnchor } from "@/utils";
+import { goToAnchor, timeAgo } from "@/utils";
 export default {
   name: "book",
   components: {
     Header,
     Footer,
   },
-  setup() {
+  setup () {
     const route = useRoute();
     const router = useRouter();
 
     const state = reactive({
       uid: getUid(),
       book: {},
+      bookId: "",
       books: [],
       chapterAbout: {},
       commentContent: "",
       newestComments: {},
       imgBaseUrl: process.env.VUE_APP_BASE_IMG_URL,
-      dialogUpdateCommentFormVisible: false,
       commentId: "",
       updateComment: "",
+      isInBookshelf: false,
     });
     onMounted(() => {
       const bookId = route.params.id;
@@ -375,6 +251,7 @@ export default {
       loadRecBooks(bookId);
       loadLastChapterAbout(bookId);
       loadNewestComments(bookId);
+      checkBookshelfStatus()
     });
 
     onUpdated(() => {
@@ -389,10 +266,13 @@ export default {
     const loadBook = async (bookId) => {
       const { data } = await getBookById(bookId);
       state.book = data;
+      console.log(state.book)
+      state.bookId = data.id;
       document
         .getElementById("bookCover")
         .setAttribute("onerror", "this.src='default.gif';this.onerror=null");
-      addBookVisit(bookId);
+      await addBookVisit(bookId);
+      await checkBookshelfStatus()
     };
 
     const loadRecBooks = async (bookId) => {
@@ -422,13 +302,25 @@ export default {
     };
 
     const addBookVisit = async (bookId) => {
-      addVisitCount({ bookId: bookId });
+      await addVisitCount({ bookId: bookId });
     };
 
     const loadNewestComments = async (bookId) => {
       const { data } = await listNewestComments({ bookId: bookId });
       state.newestComments = data;
     };
+
+    const displayComments = computed(() => {
+      if (state.newestComments.list && state.newestComments.list.length > 0) {
+        // 如果评论总数大于5，只显示前5条
+        if (state.newestComments.total > 5) {
+          return state.newestComments.list.slice(0, 5);
+        }
+        // 如果评论总数小于等于5，显示全部
+        return state.newestComments.list;
+      }
+      return [];
+    });
 
     const userComment = async () => {
       if (!state.commentContent) {
@@ -451,21 +343,17 @@ export default {
       loadNewestComments(state.book.id);
     };
 
-    const updateUserComment = async (id, comment) => {
-      state.dialogUpdateCommentFormVisible = true;
-      state.updateComment = comment;
-      state.commentId = id;
+    const checkBookshelfStatus = async () => {
+      const { data } = await getBookshelfStatus({
+        bookId: state.book.id
+      });
+      state.isInBookshelf = data === "1";
     };
 
-    const deleteUserComment = async (id) => {
-      await deleteComment(id);
-      loadNewestComments(state.book.id);
-    };
-
-    const goUpdateComment = async (id) => {
-      state.dialogUpdateCommentFormVisible = false;
-      await updateComment(state.commentId, { content: state.updateComment });
-      loadNewestComments(state.book.id);
+    const addToBookshelf = async () => {
+      if (state.isInBookshelf) return;
+      await addBookshelf({ bookId: state.book.id })
+      state.isInBookshelf = true
     };
 
     return {
@@ -476,14 +364,15 @@ export default {
       bookDetail,
       chapterList,
       goToAnchor,
+      timeAgo,
       userComment,
-      deleteUserComment,
       man,
-      updateUserComment,
-      goUpdateComment,
+      checkBookshelfStatus,
+      addToBookshelf,
+      displayComments
     };
   },
-  mounted() {
+  mounted () {
     $(".icon_show").click(function () {
       $(this).hide();
       $(".icon_hide").show();
@@ -513,6 +402,7 @@ export default {
   border: #f80;
   border-color: #f80;
 }
+
 .el-button--primary {
   --el-button-hover-bg-color: #f80;
 }
@@ -527,5 +417,10 @@ export default {
 
 .el-button {
   --el-button-hover-bg-color: #ff880061;
+}
+
+.comment_list .num {
+  color: #ed4259;
+  margin: 0 3px;
 }
 </style>

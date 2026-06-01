@@ -2,42 +2,51 @@
   <Header />
   <div class="main box_center cf">
     <div class="nav_sub">
-      
+      <a href="/">首页</a>&gt;
+      <router-link :to="{
+        path: '/bookclass',
+        query: {
+          categoryId: book.categoryId,
+          workDirection: book.workDirection
+        }
+      }">{{ book.categoryName }}</router-link>&gt;
+      <router-link :to="`/book/${book.id}`">{{ book.bookName }}</router-link>&gt;
+      <router-link :to="`/chapter_list/${book.id}`">作品目录</router-link>
     </div>
     <div class="channelWrap channelChapterlist cf mb50">
       <div class="bookMain">
         <div class="bookCover cf">
           <div class="book_info1">
             <div class="tit">
-              <h1>{{book.bookName}}</h1>
-              <!--<i class="vip_b">VIP</i>-->
+              <h1>{{ book.bookName }}</h1>
+              <!-- <i class="vip_b">VIP</i> -->
             </div>
             <ul class="list">
               <li>
-                <span>作者：<a href="javascript:void(0)">{{book.authorName}}</a></span>
-                <span
-                  >类别：{{book.categoryName}}</span
-                >
+                <span>作者：<a href="javascript:void(0)">{{ book.authorName }}</a></span>
+                <span>类别：{{ book.categoryName }}</span>
                 <span>状态：<em class="black3">{{
                   book.bookStatus == 0 ? "连载中" : "已完结"
-                }}</em></span>
-                <span>总点击：<em class="black3" id="cTotal">{{book.visitCount}}</em></span>
-                <span>总字数：<em class="black3">{{book.wordCount}}</em></span>
+                    }}</em></span>
+                <span>总点击：<em class="black3" id="cTotal">{{ book.visitCount }}</em></span>
+                <span>总字数：<em class="black3">{{ book.wordCount }}</em></span>
               </li>
             </ul>
           </div>
         </div>
         <div class="dirWrap cf">
-          <h3>正文({{chapterList.length}})</h3>
+          <h3>正文({{ chapterList.length }})</h3>
           <div class="dirList">
-            <ul v-for="(item,index) in chapterList" :key="index">
+            <ul v-for="(item, index) in chapterList" :key="index">
               <li>
-                <a @click="bookContent(book.id,item.id)" href="javascript:void(0)">
-                  <span>{{item.chapterName}}</span><i class="red"> [{{item.isVip == 1 ? '收费' : '免费'}}]</i>
+                <a @click="bookContent(book.id, item.id)" href="javascript:void(0)">
+                  <span>{{ item.chapterName }}</span><i :class="item.isVip == 1 ? 'isVip' : 'red'"> [{{ item.isVip == 1
+                    ?
+                    '收费' : '免费' }}]</i>
                 </a>
               </li>
             </ul>
-            
+
           </div>
         </div>
       </div>
@@ -60,7 +69,7 @@ export default {
     Header,
     Footer,
   },
-  setup() {
+  setup () {
     const route = useRoute();
     const router = useRouter();
 
@@ -101,3 +110,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.isVip {
+  color: red;
+}
+</style>
