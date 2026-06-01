@@ -6,32 +6,57 @@
       <UserMenu />
       <div class="my_r">
         <div class="my_bookshelf">
-                <div class="title cf">
-                    <h2 class="fl">我的书评</h2>
-                    <div class="fr"></div>
-                </div>
-                <div class="bookComment">
-                    <div v-if="total == 0" class="no_contet no_comment" >
-                        您还没有发表过评论！
-                    </div>
-                    <div v-if="total > 0" class="commentBar" id="commentBar">
-                      <div v-for="(item, index) in comments"
-                  :key="index" class="comment_list cf"><div class="user_heads fl" vals="389"><img :src="
-                        imgBaseUrl + item.commentBookPic
-                         
-                      " class="user_head" alt="" onerror="this.src='default.gif';this.onerror=null"><span class="user_level1" style="display: none;">见习</span></div><ul class="pl_bar fr">			<li class="name">{{ item.commentBook }}</li><li class="dec" v-html="item.commentContent"></li><li class="other cf"><span class="time fl">{{ item.commentTime }}</span><span class="fr"><a href="javascript:void(0);" onclick="javascript:BookDetail.AddAgreeTotal(77,this);" class="zan" style="display: none;">赞<i class="num">(0)</i></a></span></li>		</ul>	</div>
-                    </div>
-                </div>
-                <el-pagination v-if="total > 0"
-          small
-          layout="prev, pager, next"
-          :background="backgroud"
-          :page-size="pageSize"
-          :total="total"
-          class="mt-4"
-          @current-change="handleCurrentChange"
-        />
+          <div class="title cf">
+            <h2 class="fl">我的书评</h2>
+            <div class="fr"></div>
+          </div>
+          <div class="bookComment">
+            <div v-if="total == 0" class="no_contet no_comment">
+              您还没有发表过评论！
             </div>
+            <div v-if="total > 0" class="commentBar" id="commentBar">
+              <div v-for="(item, index) in comments" :key="index" class="comment_list cf">
+                <div @click="goToBook(item.commentBookId)" class="user_heads fl" vals="389"><img :src="imgBaseUrl + item.commentBookPic
+                  " class="user_head" alt="" onerror="this.src='default.gif';this.onerror=null"><span
+                    class="user_level1" style="display: none;">见习</span></div>
+                <ul class="pl_bar fr">
+                  <li @click="goToBook(item.commentBookId)" class="name">{{ item.commentBook }}</li>
+                  <li class="dec" v-html="item.commentContent"></li>
+                  <li class="other cf">
+                    <span class="time fl">{{ timeAgo(item.commentTime) }}</span>
+                    <span class="fr">
+                      <a href="javascript:void(0);" onclick="javascript:BookDetail.AddAgreeTotal(77,this);" class="zan"
+                        style="display: none;">
+                        赞
+                        <i class="num">(0)</i>
+                      </a>
+                      <a href="javascript:void(0);" @click="
+                        updateUserComment(item.id, item.commentContent)
+                        " class="zan">修改</a>
+                      |
+                      <a href="javascript:void(0);" @click="deleteUserComment(item.id)" class="zan">删除</a>
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <el-dialog v-model="dialogUpdateCommentFormVisible" title="评论修改">
+              <el-form>
+                <el-form-item label="评论内容">
+                  <el-input type="textarea" v-model="updateComment" />
+                </el-form-item>
+              </el-form>
+              <template #footer>
+                <span class="dialog-footer">
+                  <el-button @click="dialogUpdateCommentFormVisible = false">取消</el-button>
+                  <el-button type="primary" @click="goUpdateComment()">确定</el-button>
+                </span>
+              </template>
+            </el-dialog>
+          </div>
+          <el-pagination v-if="total > 0" small layout="prev, pager, next" :background="true" :page-size="pageSize"
+            :total="total" class="mt-4" @current-change="handleCurrentChange" />
+        </div>
       </div>
     </div>
   </div>
@@ -41,8 +66,9 @@
 <script>
 import "@/assets/styles/user.css";
 import man from "@/assets/images/man.png";
-import { listComments } from '@/api/user'
-import { reactive, toRefs, onMounted, ref } from "vue";
+import { timeAgo } from "@/utils";
+import { deleteComment, listComments, updateComment } from '@/api/user'
+import { reactive, toRefs, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
@@ -54,61 +80,91 @@ export default {
     Footer,
     UserMenu
   },
-  setup() {
+  setup () {
     const route = useRoute();
     const router = useRouter();
 
     const state = reactive({
+      pageNum: 1,
       total: 0,
-      pageSize: 10,
-      comments:[],
+      pageSize: 3,
+      comments: [],
       baseUrl: process.env.VUE_APP_BASE_API_URL,
       imgBaseUrl: process.env.VUE_APP_BASE_IMG_URL,
+      dialogUpdateCommentFormVisible: false,
+      commentId: "",
+      updateComment: "",
     });
 
     const handleCurrentChange = (pageNum) => {
-      
-      loadComments(pageNum);
+      state.pageNum = pageNum
+      loadComments();
     };
 
     onMounted(async () => {
-      loadComments(0);
+      loadComments();
     });
 
-    const loadComments = async (pageNum) => {
-      const { data } = await listComments({'pageNum':pageNum,'pageSize':state.pageSize});
+    const loadComments = async () => {
+      const { data } = await listComments({ pageNum: state.pageNum, pageSize: state.pageSize });
       state.comments = data.list;
+      console.log(state.comments)
       state.total = Number(data.total);
     };
 
-    
-    
+    const goToBook = (bookId) => {
+      router.push(`/book/comment/${bookId}`)
+    }
+    const updateUserComment = async (id, comment) => {
+      state.dialogUpdateCommentFormVisible = true;
+      state.updateComment = comment;
+      state.commentId = id;
+    };
+
+    const deleteUserComment = async (id) => {
+      await deleteComment(id);
+      loadComments();
+    };
+
+    const goUpdateComment = async (id) => {
+      state.dialogUpdateCommentFormVisible = false;
+      await updateComment(state.commentId, { content: state.updateComment });
+      loadComments();
+    };
 
     return {
       ...toRefs(state),
       handleCurrentChange,
       man,
-      
+      goToBook,
+      timeAgo,
+      updateUserComment,
+      deleteUserComment,
+      goUpdateComment
     };
   },
 };
 </script>
 
 <style scoped>
-.el-pagination {
+:deep(.el-pagination) {
   justify-content: center;
 }
-.el-pagination.is-background .el-pager li:not(.is-disabled).is-active {
+
+:deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active) {
   background-color: #f80 !important;
 }
-.el-pagination {
+
+:deep(.el-pagination) {
   --el-pagination-hover-color: #f80 !important;
 }
+
 .avatar-uploader .avatar {
   width: 178px;
   height: 178px;
   display: block;
 }
+
 .avatar-uploader .avatar {
   width: 178px;
   height: 178px;
@@ -139,34 +195,41 @@ export default {
 .updateTable .style a {
   color: #999;
 }
+
 .updateTable .author a {
   color: #999;
   cursor: text;
 }
+
 .bind,
 .updateTable .style a:hover {
   color: #f65167;
 }
+
 .userBox {
   /*width: 998px; border: 1px solid #eaeaea;*/
   margin: 0 auto 50px;
   background: #fff;
   border-radius: 6px;
 }
+
 .channelViewhistory .userBox {
   margin: 0 auto;
 }
+
 .user_l {
   width: 350px;
   float: left;
   padding: 100px 124px;
 }
+
 .user_l h3 {
   font-size: 23px;
   font-weight: normal;
   line-height: 1;
   text-align: center;
 }
+
 .user_l #LabErr {
   color: #ff4040;
   display: block;
@@ -175,13 +238,16 @@ export default {
   text-align: center;
   font-size: 14px;
 }
+
 .user_l .log_list {
   width: 350px;
 }
+
 .user_l .s_input {
   margin-bottom: 25px;
   font-size: 14px;
 }
+
 .s_input {
   width: 348px;
   height: 38px;
@@ -190,24 +256,29 @@ export default {
   border: 1px solid #ddd;
   border-radius: 2px;
 }
+
 .icon_name,
 .icon_key,
 .icon_code {
   width: 312px;
   padding-left: 36px;
 }
+
 .icon_key {
   background-position: 13px -51px;
 }
+
 .icon_code {
   background-position: 13px -117px;
   width: 200px;
   float: left;
 }
+
 .code_pic {
   height: 38px;
   float: right;
 }
+
 .btn_phone {
   height: 40px;
   width: 100px;
@@ -218,23 +289,28 @@ export default {
   border-radius: 2px;
   background: #dfdfdf;
 }
+
 .log_code {
   *padding-bottom: 25px;
 }
+
 .user_l .btn_red {
   width: 100%;
   font-size: 19px;
   padding: 12px;
 }
+
 .autologin {
   color: #999;
   line-height: 1;
   margin-bottom: 18px;
 }
+
 .autologin em {
   vertical-align: 2px;
   margin-left: 4px;
 }
+
 .user_r {
   width: 259px;
   margin: 80px 0;
@@ -243,55 +319,69 @@ export default {
   float: right;
   text-align: center;
 }
+
 .user_r .tit {
   font-size: 16px;
   line-height: 1;
   padding: 6px 0 25px;
 }
+
 .user_r .btn_ora {
   padding: 10px 34px;
 }
+
 .fast_login {
   padding: 60px 0 0;
 }
+
 .fast_list {
   text-align: center;
   padding: 0.5rem;
 }
+
 .fast_list li {
   display: inline-block;
   *display: inline;
   zoom: 1;
 }
+
 .fast_list li .img {
   width: 48px;
   height: 48px;
   margin: 20px 0 5px;
 }
+
 .fast_list li a:hover {
   opacity: 0.8;
   filter: alpha(opacity=80);
   -moz-opacity: 0.8;
 }
+
 .fast_list li span {
   display: block;
 }
+
 .fast_list .login_qq {
   margin: 0 42px;
 }
+
 .fast_list .login_wb a {
   color: #f55c5b;
 }
+
 .fast_list .login_qq a {
   color: #51b7ff;
 }
+
 .fast_list .login_wx a {
   color: #66d65e;
 }
+
 .fast_tit {
   position: relative;
   overflow: hidden;
 }
+
 .fast_tit .lines {
   position: absolute;
   top: 50%;
@@ -301,6 +391,7 @@ export default {
   line-height: 1;
   background: #eaeaea;
 }
+
 .fast_tit .title {
   background: #fff;
   font-size: 16px;
@@ -309,6 +400,7 @@ export default {
   display: inline-block;
   z-index: 999;
 }
+
 /*userinfo*/
 .my_l {
   width: 198px;
@@ -316,6 +408,7 @@ export default {
   font-size: 13px;
   padding-top: 20px;
 }
+
 .my_l li a {
   display: block;
   height: 42px;
@@ -325,36 +418,46 @@ export default {
   margin-bottom: 5px;
   color: #666;
 }
+
 .my_l li .on {
   background-color: #fafafa;
   border-left: 2px solid #f80;
   color: #000;
   border-radius: 0 2px 2px 0;
 }
+
 .my_l .link_1 {
   background-position: 32px -188px;
 }
+
 .my_l .link_2 {
   background-position: 32px -230px;
 }
+
 .my_l .link_3 {
   background-position: 32px -272px;
 }
+
 .my_l .link_4 {
   background-position: 32px -314px;
 }
+
 .my_l .link_5 {
   background-position: 32px -356px;
 }
+
 .my_l .link_6 {
   background-position: 32px -397px;
 }
+
 .my_l .link_7 {
   background-position: 32px -440px;
 }
+
 .my_l .link_8 {
   background-position: 32px -481px;
 }
+
 .my_r {
   width: 739px;
   padding: 0 30px 30px;
@@ -362,9 +465,11 @@ export default {
   border-left: 1px solid #efefef;
   min-height: 470px;
 }
+
 .my_info {
   padding: 30px 0 5px;
 }
+
 .user_big_head {
   /*width:110px; height:110px; padding:4px; border:1px solid #eaeaea;*/
   margin-right: 30px;
@@ -373,34 +478,42 @@ export default {
   height: 80px;
   border-radius: 50%;
 }
+
 .my_r .my_name {
   font-size: 18px;
   line-height: 1;
   padding: 5px 0 12px 0;
 }
+
 .my_r .s_input {
   width: 318px;
   padding: 0 10px;
 }
+
 .my_list li {
   line-height: 28px;
 }
+
 .my_list li i,
 .my_list li em.red {
   margin-right: 6px;
 }
+
 .my_list .binded {
   color: #999;
   margin-left: 6px;
 }
+
 .my_list .btn_link {
   margin-left: 12px;
 }
+
 .mytab_list li {
   line-height: 30px;
   padding: 10px 0;
   font-size: 14px;
 }
+
 .mytab_list li .tit {
   width: 70px;
   color: #aaa;
@@ -408,32 +521,39 @@ export default {
   display: inline-block;
   margin-right: 18px;
 }
+
 .mytab_list .user_img {
   width: 48px;
   height: 48px;
   vertical-align: middle;
   border-radius: 50%;
 }
+
 .my_bookshelf .title {
   padding: 20px 0 15px;
   line-height: 30px;
 }
+
 .my_bookshelf h4 {
   font-size: 14px;
   color: #666;
 }
+
 .my_bookshelf h2 {
   font-size: 18px;
   font-weight: normal;
 }
+
 .updateTable {
   width: 739px;
   color: #999;
 }
+
 .updateTable table {
   width: 100%;
   margin-bottom: 14px;
 }
+
 .updateTable th,
 .updateTable td {
   height: 40px;
@@ -443,23 +563,28 @@ export default {
   font-weight: normal;
   text-align: left;
 }
+
 .updateTable th {
   background: #f9f9f9;
   color: #333;
   border-top: 1px solid #eee;
 }
+
 .updateTable td {
   height: 40px;
   line-height: 40px;
 }
+
 .updateTable .style {
   width: 80px;
   padding-left: 10px;
 }
+
 .updateTable .name {
   width: 178px;
   padding-right: 10px;
 }
+
 .updateTable .name a,
 .updateTable .chapter a {
   max-width: 168px;
@@ -467,34 +592,42 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .updateTable .chapter {
   padding-right: 5px;
 }
+
 .updateTable .chapter a {
   max-width: 220px;
   float: left;
 }
+
 .updateTable .author {
   width: 72px;
   text-align: left;
 }
+
 .updateTable .goread {
   width: 80px;
   text-align: center;
 }
+
 .updateTable .time {
   width: 86px;
 }
+
 .updateTable .word {
   width: 64px;
   padding-right: 10px;
   text-align: right;
 }
+
 .updateTable .rank {
   width: 30px;
   padding-right: 10px;
   text-align: center;
 }
+
 .updateTable .name a,
 .updateTable .chapter a,
 .updateTable .author a {
@@ -503,17 +636,21 @@ export default {
   display: inline-block;
   overflow: hidden;
 }
+
 .updateTable tr:nth-child(2n) td {
   background: #fafafa;
 }
+
 .dataTable {
   width: 739px;
 }
+
 .dataTable table {
   width: 100%;
   margin-bottom: 14px;
   border-collapse: collapse;
 }
+
 .dataTable th,
 .dataTable td {
   height: 40px;
@@ -524,20 +661,25 @@ export default {
   text-align: center;
   border: 1px solid #eaeaea;
 }
+
 .dataTable th {
   background: #f8f8f8;
 }
+
 .nodate {
   border-top: 1px solid #eaeaea;
   padding: 60px 0;
 }
+
 .viewhistoryBox {
   /*padding: 0 30px 30px; */
   padding: 0 20px 10px;
 }
+
 .viewhistoryBox .updateTable {
   width: 100%;
 }
+
 /*.btn_gray, .btn_red, .btn_ora { font-size:14px; padding:8px 28px }*/
 .book_tit {
   height: 48px;
@@ -546,10 +688,12 @@ export default {
   border-bottom: 1px solid #eaeaea;
   overflow: hidden;
 }
+
 .book_tit .fl {
   font-size: 14px;
   color: #999;
 }
+
 .book_tit .fl h3 {
   font-size: 18px;
   color: #333;
@@ -557,6 +701,7 @@ export default {
   margin-right: 5px;
   display: inline;
 }
+
 .book_tit .fr {
   font-size: 14px;
 }
@@ -566,6 +711,7 @@ export default {
   border-top: 1px solid #eee;
   margin-bottom: 15px;
 }
+
 /*.comment_list { padding: 16px 0; border-bottom: 1px solid #eee }
 .comment_list .user_head { width:54px; height:54px; border-radius:50%; float: left; margin-right: 14px }
 .comment_list .li_1 { overflow: hidden }
@@ -587,20 +733,25 @@ export default {
   padding: 20px 0;
   border-bottom: 1px solid #eee;
 }
+
 .comment_list:last-child {
   border: none;
 }
+
 .comment_list .user_heads {
   /*width: 54px; height: 54px; float: left;*/
   position: relative;
   margin-right: 20px;
+  cursor: pointer;
 }
+
 .comment_list .user_head {
   width: 50px;
   height: 50px;
   border-radius: 50%;
   background: #f6f6f6;
 }
+
 .comment_list .user_heads span {
   display: block;
   margin: 0;
@@ -608,67 +759,93 @@ export default {
   left: 12px;
   bottom: 0;
 }
+
 .comment_list ul {
   /*width: 640px;*/
   width: 660px;
 }
+
 .comment_list .li_0 {
   font-family: "宋体";
 }
+
 .comment_list .li_0 strong {
   font-size: 14px;
   color: #f00;
 }
+
 .comment_list .li_1 {
   overflow: hidden;
 }
+
 .comment_list .user_name {
   color: #ed4259;
 }
+
 .comment_list .li_2 {
   padding: 6px 0;
 }
+
 .comment_list .li_3 {
   color: #999;
 }
+
 .comment_list .reply {
   padding-left: 12px;
 }
+
 .comment_list .num {
   color: #ed4259;
   margin: 0 3px;
 }
+
 .comment_list .li_4 {
   line-height: 34px;
   padding-top: 8px;
   margin-top: 15px;
   border-top: 1px solid #eaeaea;
 }
+
 .pl_bar li {
   display: block;
 }
+
 .pl_bar .name {
   color: #666;
   padding-top: 2px;
   font-size: 14px;
+  cursor: pointer;
 }
+
+.pl_bar .name:hover {
+  color: #f80;
+}
+
 .pl_bar .dec {
   font-size: 14px;
   line-height: 1.8;
   padding: 12px 0;
 }
+
 .pl_bar .other {
   line-height: 24px;
   color: #999;
   font-size: 13px;
 }
+
 .pl_bar .other a {
   display: inline-block;
   color: #999;
 }
+
+.pl_bar .other a:hover {
+  color: #f80 !important;
+}
+
 .pl_bar .reply {
   padding-left: 22px;
 }
+
 /*.no_comment { padding: 70px 14px 115px; color: #CCCCCC; text-align: center; font-size: 14px; }*/
 .reply_bar {
   background: #f9f9f9;
@@ -676,5 +853,27 @@ export default {
   border-radius: 6px;
   padding: 10px;
   line-height: 1.8;
+}
+
+
+.delete-btn {
+  margin-left: 20px;
+  padding: 4px 16px;
+  background: none;
+  border: 1px solid #f80;
+  color: #f80;
+  border-radius: 16px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s;
+  outline: none;
+  white-space: nowrap;
+  align-self: center;
+}
+
+.delete-btn:hover {
+  background: #f80;
+  color: #fff;
+  border-color: #f80;
 }
 </style>
