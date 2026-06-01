@@ -48,3 +48,31 @@ export function getChapter(id) {
 export function updateChapter(id,params) {
     return request.put(`/author/book/chapter/${id}`,params);
 }
+
+export function getBook(bookId) {
+    return request.get(`/author/book/${bookId}`);
+}
+
+export function updateBook (id, params) {
+    return request.put(`/author/book/${id}`, params);
+}
+
+export function deleteBook(id) {
+    return request.delete(`/author/book/${id}`);
+}
+
+export function listCategorys(params) {
+    return request.get('/author/book/category/list', { params });
+}
+
+export function listIncomes(params) {
+    return request.get('/author/income/list', { params });
+}
+
+export function listSubscribe(params) {
+    return request.get('/author/subscribe/list', { params });
+}
+
+export function updatePic(params) {
+    return request.post('/author/update/pic-path', params);
+}

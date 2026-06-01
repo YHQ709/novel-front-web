@@ -56,3 +56,17 @@ export function listNewestComments(params) {
     return request.get('/front/book/comment/newest_list',{ params });
 }
 
+export function getCommentDetail(commentId) {
+    return request.get(`/front/book/comment/${commentId}`);
+}
+
+export function listNewestCommentReply(params) {
+    return request.get('/front/book/comment/reply/newest_list',{ params });
+}
+
+export function buyVipChapter(chapterId) {
+    return request.post(`/front/book/buy_vip_chapter/${chapterId}`);
+}
+
+
+
